@@ -76,4 +76,4 @@
         baseurl: "https://pkg.duosecurity.com/{{ ansible_distribution }}/$releasever/$basearch"
         enabled: yes
         gpgcheck: no
-      when: repository.rc != 0 or repository is undefined
+      when: repository.rc != 0 or repository is not defined
