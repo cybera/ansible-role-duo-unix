@@ -66,7 +66,7 @@
     - name: "Check if Duo Security Repository is added via Spacewalk"
       shell: rhn-channel --list | grep -i "duo"
       register: repository
-      failed_when: "'FAILED' in repository.stderr"
+      #failed_when: "'FAILED' in repository.stderr"
       #ignore_errors: true
       when:
         - rhncfg.rc == 0
