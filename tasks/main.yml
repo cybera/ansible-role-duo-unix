@@ -36,14 +36,13 @@
         dest: /tmp/
       delegate_to: localhost
     - name: "Transfer Duo Security Repository Key to host"
-      copy:
+      ansible.builtin.copy:
         src: /tmp/DUO-GPG-PUBLIC-KEY.asc
         dest: /tmp/
         owner: root
         group: root
         mode: 0644
         remote_src: no
-      creates: /tmp/DUO-GPG-PUBLIC-KEY.asc
     - name: "Import Duo Security Repository Key (RedHat)"
       rpm_key:
         key: https://duo.com/DUO-GPG-PUBLIC-KEY.asc
