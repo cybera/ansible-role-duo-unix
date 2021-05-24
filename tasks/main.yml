@@ -34,6 +34,7 @@
       get_url:
         url: https://duo.com/DUO-GPG-PUBLIC-KEY.asc
         dest: /tmp/
+      creates: /tmp/DUO-GPG-PUBLIC-KEY.asc
       delegate_to: localhost
     - name: "Transfer Duo Security Repository Key to host"
       ansible.builtin.copy:
@@ -43,6 +44,7 @@
         group: root
         mode: 0644
         remote_src: no
+      creates: /tmp/DUO-GPG-PUBLIC-KEY.asc
     - name: "Import Duo Security Repository Key (RedHat)"
       rpm_key:
         key: https://duo.com/DUO-GPG-PUBLIC-KEY.asc
@@ -64,18 +66,18 @@
       when:
         - '"rhncfg-client" in ansible_facts.packages'
         - ansible_distribution == 'CentOS'
-    - name: "Check if Duo Security Repository is added via Spacewalk"
-      shell: rhn-channel --list | grep -i "duo"
-      register: repository
-      failed_when: "'FAILED' in repository.stderr"
-      #ignore_errors: true
-      when:
-        - rhncfg.rc == 0
-    - name: "Create Duo Security Repository"
-      ansible.builtin.yum_repository:
-        name: duosecurity
-        description: "Duo Security Repository"
-        baseurl: "https://pkg.duosecurity.com/{{ ansible_distribution }}/$releasever/$basearch"
-        enabled: yes
-        gpgcheck: no
-      when: repository.rc != 0 or repository is not defined
+    #- name: "Check if Duo Security Repository is added via Spacewalk"
+    #  shell: rhn-channel --list | grep -i "duo"
+    #  register: repository
+    #  failed_when: "'FAILED' in repository.stderr"
+    #  #ignore_errors: true
+    #  when:
+    #    - rhncfg.rc == 0
+    #- name: "Create Duo Security Repository"
+    #  ansible.builtin.yum_repository:
+    #    name: duosecurity
+    #    description: "Duo Security Repository"
+    #    baseurl: "https://pkg.duosecurity.com/{{ ansible_distribution }}/$releasever/$basearch"
+    #    enabled: yes
+    #    gpgcheck: no
+    #  when: repository.rc != 0 or repository is not defined
