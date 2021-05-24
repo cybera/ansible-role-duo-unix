@@ -60,7 +60,7 @@
       command: rhncfg-client get
       register: rhncfg
       #failed_when: "'FAILED' in rhncfg.stderr"
-      ignore_errors: true
+      #ignore_errors: true
       when:
         - '"rhncfg-client" in ansible_facts.packages'
         - ansible_distribution == 'CentOS'
@@ -70,7 +70,9 @@
       register: repository
       #failed_when: "'FAILED' in repository.stderr"
       ignore_errors: true
-      when: rhncfg.rc == 0
+      when:
+        - rhncfg.rc == 0
+        - ansible_distribution == 'CentOS'
 
     - name: "Create Duo Security Repository"
       ansible.builtin.yum_repository:
