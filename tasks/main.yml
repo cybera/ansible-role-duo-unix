@@ -57,7 +57,7 @@
 #- name: "Add Duo Security Repository"
 #  block:
 - name: "Check if host is registered to a Spacewalk server"
-  command: rhncfg-client get
+  shell: rhncfg-client get
   register: rhncfg
   when:
     - '"rhncfg-client" in ansible_facts.packages'
