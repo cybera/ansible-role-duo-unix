@@ -28,7 +28,7 @@
 - name: "Import Duo Security Repository Key"
   block:
     - name: "Download latest Duo Security Repository Key"
-      ansible.builtin.get_url:
+      get_url:
         url: https://duo.com/DUO-GPG-PUBLIC-KEY.asc
         dest: /tmp/
       delegate: localhost
