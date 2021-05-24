@@ -59,6 +59,7 @@
 - name: "Check if host is registered to a Spacewalk server"
   shell: rhncfg-client get
   register: rhncfg
+  failed_when: "'non-zero return code' in rhncfg.msg"
   when:
     - '"rhncfg-client" in ansible_facts.packages'
     - ansible_distribution == 'CentOS'
