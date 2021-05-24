@@ -57,16 +57,16 @@
 - name: "Add Duo Security Repository"
   block:
     - name: "Check if host is registered to a Spacewalk server"
-      shell: rhncfg-client get
-      register: rhncfg
-      ignore_errors: yes
+      ansible.builtin.stat:
+        path: /etc/sysconfig/rhn/systemid
+      register: systemid
       when:
         - '"rhncfg-client" in ansible_facts.packages'
         - ansible_distribution == 'CentOS'
     - name: "Check if Duo Security Repository is added via Spacewalk"
       shell: rhn-channel --list | grep -i "duo"
-      register: repository
-      when: rhncfg.rc == 0
+      register: repo
+      when: systemid.stat.exists
     - name: "Create Duo Security Repository"
       ansible.builtin.yum_repository:
         name: duosecurity
@@ -74,4 +74,4 @@
         baseurl: "https://pkg.duosecurity.com/{{ ansible_distribution }}/$releasever/$basearch"
         enabled: yes
         gpgcheck: no
-      when: rhncfg.rc != 0 or repository.rc != 0
+      when: systemid.stat.exists or repo.rc != 0
