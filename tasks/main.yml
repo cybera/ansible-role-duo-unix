@@ -56,14 +56,15 @@
 
 - name: "Add Duo Security Repository"
   block:
-    - name: "Check if host is registered to a Spacewalk server"
-      command: rhncfg-client get
-      register: rhncfg
-      when: ansible_distribution == 'CentOS'
+    #- name: "Check if host is registered to a Spacewalk server"
+    #  command: rhncfg-client get
+    #  register: rhncfg
+    #  when: ansible_distribution == 'CentOS'
     - name: "Check if Duo Security Repository is added via Spacewalk"
       command: rhn-channel --list | grep -i "duo"
       register: exists
-      when: rhncfg.rc == 0
+      failed_when: exists.rc == 1 or exists.rc == 3
+      when: '"rhncfg-client" in ansible_facts.packages'
     - name: "Create Duo Security Repository"
       ansible.builtin.yum_repository:
         name: duosecurity
