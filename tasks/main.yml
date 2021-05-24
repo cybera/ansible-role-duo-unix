@@ -60,20 +60,14 @@
   shell: rhncfg-client get
   register: rhncfg
   ignore_errors: yes
-  #failed_when: "'non-zero return code' in rhncfg.msg"
   when:
     - '"rhncfg-client" in ansible_facts.packages'
     - ansible_distribution == 'CentOS'
 
-- name: "debug"
-  debug:
-    var: rhncfg
-
-#- name: "Check if Duo Security Repository is added via Spacewalk"
-#  shell: rhn-channel --list | grep -i "duo"
-#  register: repository
-#  when:
-#    - rhncfg.rc == 1
+- name: "Check if Duo Security Repository is added via Spacewalk"
+  shell: rhn-channel --list | grep -i "duo"
+  register: repository
+  when: rhncfg.rc == 0
 
 #- name: "Create Duo Security Repository"
 #  ansible.builtin.yum_repository:
