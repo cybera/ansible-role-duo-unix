@@ -63,7 +63,7 @@
       when: ansible_distribution == 'CentOS'
     - name: "Check if Duo Security Repository is added via Spacewalk"
       shell: rhn-channel --list | grep -i "duo"
-      register: exists
+      register: repository
       #failed_when: exists.rc == 1 or exists.rc == 3
       ignore_errors: true
       when:
@@ -76,4 +76,4 @@
         baseurl: "https://pkg.duosecurity.com/{{ ansible_distribution }}/$releasever/$basearch"
         enabled: yes
         gpgcheck: no
-      when: exists.rc != 0
+      when: repository.rc != 0 or repository is undefined
