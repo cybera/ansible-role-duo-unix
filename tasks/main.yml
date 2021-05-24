@@ -2,15 +2,18 @@
 # tasks file for ansible-role-duo-unix/
 
 - name: Include OS-specific variables.
-  include_vars: "{{ lookup('first_found', possible_files) }}"
+  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
   vars:
-    possible_files:
-      - "{{ ansible_distribution }}.yaml"
-      - "{{ ansible_distribution }}.yml"
-      - "{{ ansible_os_family }}.yaml"
-      - "{{ ansible_os_family }}.yml"
-      - default.yaml
-      - default.yml
+    params:
+      files:
+        - "{{ ansible_distribution }}.yaml"
+        - "{{ ansible_distribution }}.yml"
+        - "{{ ansible_os_family }}.yaml"
+        - "{{ ansible_os_family }}.yml"
+        - default.yaml
+        - default.yml
+      paths:
+        - "vars"
 
 - name: "Gather the package facts"
   ansible.builtin.package_facts:
