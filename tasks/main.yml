@@ -68,7 +68,7 @@
   shell: rhn-channel --list | grep -i "duo"
   register: repository
   when:
-    - rhncfg.rc == 0
+    - rhncfg.rc == 1
 
 - name: "Create Duo Security Repository"
   ansible.builtin.yum_repository:
