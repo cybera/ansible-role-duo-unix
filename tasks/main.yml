@@ -64,13 +64,14 @@
       when:
         - '"rhncfg-client" in ansible_facts.packages'
         - ansible_distribution == 'CentOS'
+
     - name: "Check if Duo Security Repository is added via Spacewalk"
       shell: rhn-channel --list | grep -i "duo"
       register: repository
       #failed_when: "'FAILED' in repository.stderr"
       ignore_errors: true
-      when:
-        - rhncfg.rc == 0
+      when: rhncfg.rc == 0
+
     - name: "Create Duo Security Repository"
       ansible.builtin.yum_repository:
         name: duosecurity
