@@ -59,15 +59,17 @@
     - name: "Check if host is registered to a Spacewalk server"
       command: rhncfg-client get
       register: rhncfg
-      ignore_errors: true
-      when: ansible_distribution == 'CentOS'
+      #failed_when: "'FAILED' in repository.stderr"
+      #ignore_errors: true
+      when:
+        - '"rhncfg-client" in ansible_facts.packages'
+        - ansible_distribution == 'CentOS'
     - name: "Check if Duo Security Repository is added via Spacewalk"
       shell: rhn-channel --list | grep -i "duo"
       register: repository
-      #failed_when: exists.rc == 1 or exists.rc == 3
-      ignore_errors: true
+      failed_when: "'FAILED' in repository.stderr"
+      #ignore_errors: true
       when:
-        - '"rhncfg-client" in ansible_facts.packages'
         - rhncfg.rc == 0
     - name: "Create Duo Security Repository"
       ansible.builtin.yum_repository:
