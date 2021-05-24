@@ -1,0 +1,3 @@
+---
+ssh_daemon: 'ssh'
+super_users: 'sudo'

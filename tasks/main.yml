@@ -1,2 +1,53 @@
 ---
 # tasks file for ansible-role-duo-unix/
+
+- name: Include OS-specific variables.
+  include_vars:  "{{ lookup('first_found', possible_files) }}"
+  vars:
+    possible_files:
+      - "{{ ansible_distribution }}.yaml"
+      - "{{ ansible_distribution }}.yml"
+      - "{{ ansible_os_family }}.yaml"
+      - "{{ ansible_os_family }}.yml"
+      - default.yaml
+      - default.yml
+
+- name: "Gather the package facts"
+  ansible.builtin.package_facts:
+    manager: auto
+  when: ansible_facts.packages is not defined
+
+- name: "Install yum-utils package, if not already installed"
+  ansible.builtin.package:
+    name: "yum-utils"
+    state: present
+  when:
+    - '"yum-utils" not in ansible_facts.packages'
+    - ansible_os_family == 'RedHat'
+
+- name: "Import Duo Security Repository Key"
+  block:
+    - name: "Download latest Duo Security Repository Key"
+      ansible.builtin.get_url:
+        url: https://duo.com/DUO-GPG-PUBLIC-KEY.asc
+        dest: /tmp/
+      delegate: localhost
+    - name: "Transfer Duo Security Repository Key to host"
+      ansible.builtin.copy:
+        src: /tmp/DUO-GPG-PUBLIC-KEY.asc
+        dest: /tmp/
+        owner: root
+        group: root
+        mode: 0644
+        remote_src: no
+    - name: "Import Duo Security Repository Key (RedHat)"
+      rpm_key:
+        key: https://duo.com/DUO-GPG-PUBLIC-KEY.asc
+        state: present
+      when: ansible_os_family == 'RedHat'
+    - name: "Import Duo Security Repository Key (Debian)"
+      apt_key:
+        url: https://duo.com/DUO-GPG-PUBLIC-KEY.asc
+        state: present
+      when: ansible_os_family == 'Debian'
+
