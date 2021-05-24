@@ -36,7 +36,7 @@
         dest: /tmp/
       delegate_to: localhost
     - name: "Transfer Duo Security Repository Key to host"
-      ansible.builtin.copy:
+      copy:
         src: /tmp/DUO-GPG-PUBLIC-KEY.asc
         dest: /tmp/
         owner: root
