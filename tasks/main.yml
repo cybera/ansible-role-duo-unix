@@ -67,11 +67,23 @@
       shell: rhn-channel --list | grep -i "duo"
       register: repo
       when: systemid.stat.exists
-    - name: "Create Duo Security Repository"
+    - name: "Create Duo Security Repository (RedHat)"
       ansible.builtin.yum_repository:
         name: duosecurity
         description: "Duo Security Repository"
         baseurl: "https://pkg.duosecurity.com/{{ ansible_distribution }}/$releasever/$basearch"
         enabled: yes
         gpgcheck: no
+        state: present
       when: not systemid.stat.exists or repo.rc != 0
+    - name: "Create Duo Security Repository (Debian)"
+      ansible.builtin.apt_repository:
+        repo: "deb https://pkg.duosecurity.com/{{ ansible_distribution }} {{ ansible_distribution_release }} main"
+        validate_certs: no
+        state: present
+      when: ansible_os_family == 'Debian'
+
+- name: "Install duo_unix package"
+  ansible.builtin.package:
+    name: "duo_unix"
+    state: present
