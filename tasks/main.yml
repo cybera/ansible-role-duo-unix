@@ -81,4 +81,6 @@
         baseurl: "https://pkg.duosecurity.com/{{ ansible_distribution }}/$releasever/$basearch"
         enabled: yes
         gpgcheck: no
-      when: rhncfg.rc == 1 or repository.rc != 0
+      when:
+        - rhncfg.rc == 1
+        - repository.rc != 0
