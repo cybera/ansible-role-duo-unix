@@ -59,13 +59,16 @@
 - name: "Check if host is registered to a Spacewalk server"
   shell: rhncfg-client get
   register: rhncfg
+  ignore_errors: yes
   #failed_when: "'non-zero return code' in rhncfg.msg"
   when:
     - '"rhncfg-client" in ansible_facts.packages'
     - ansible_distribution == 'CentOS'
 
-- debug:
+- name: "debug"
+  debug:
     var: rhncfg
+
 #- name: "Check if Duo Security Repository is added via Spacewalk"
 #  shell: rhn-channel --list | grep -i "duo"
 #  register: repository
