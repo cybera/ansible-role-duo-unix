@@ -31,7 +31,7 @@
       get_url:
         url: https://duo.com/DUO-GPG-PUBLIC-KEY.asc
         dest: /tmp/
-      delegate: localhost
+      delegate_to: localhost
     - name: "Transfer Duo Security Repository Key to host"
       ansible.builtin.copy:
         src: /tmp/DUO-GPG-PUBLIC-KEY.asc
