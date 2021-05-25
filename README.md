@@ -14,16 +14,17 @@ Role Variables
 Available variables are listed below, along with default values (see ```defaults/main.yml```):
 
 ``` yaml
-duo_ikey: '1234567890'
-duo_skey: '1234567890'
-duo_host: 'duo.example.com'
-duo_failmode: 'safe'
-duo_pushinfo: 'yes'
-duo_autopush: 'yes'
-duo_prompts: '1'
-duo_default_groups: 'users,wheel,*admin'
-duo_exclude_groups: '!exclude'
-ad_domain: 'domain.com'
+duo_ikey: "1234567890"
+duo_skey: "1234567890"
+duo_host: "duo.example.com"
+duo_failmode: "safe"
+duo_pushinfo: "yes"
+duo_autopush: "yes"
+duo_prompts: "1"
+duo_default_groups: "users,wheel,*admin"
+duo_exclude_groups: "!exclude"
+ad_domain: "domain.com"
+password_authentication: "yes"
 ```
 
 ```duo_ikey:``` **(Required)** Integration key from Duo Console.
@@ -46,6 +47,8 @@ ad_domain: 'domain.com'
 
 ```ad_domain``` **(Optional)** Active Directory group (**Fully-Qualified**) to include.
 
+```password_authentication``` **(Optional)** Password Authentication for SSH Daemon. **Yes** to allow; **No** to disable.
+
 Role variables can be stored with the ```hosts.yaml``` file, or in the main variables file.
 
 Dependencies
@@ -61,16 +64,17 @@ Example Playbook
       roles:
          - role: mikepruett3.duo-unix
            vars:
-            duo_ikey: '1234567890'
-            duo_skey: '1234567890'
-            duo_host: 'duo.example.com'
-            duo_failmode: 'safe'
-            duo_pushinfo: 'yes'
-            duo_autopush: 'yes'
-            duo_prompts: '1'
-            duo_default_groups: 'users,wheel,*admin'
-            duo_exclude_groups: '!exclude'
-            ad_domain: 'domain.com'
+            duo_ikey: "1234567890"
+            duo_skey: "1234567890"
+            duo_host: "duo.example.com"
+            duo_failmode: "safe"
+            duo_pushinfo: "yes"
+            duo_autopush: "yes"
+            duo_prompts: "1"
+            duo_default_groups: "users,wheel,*admin"
+            duo_exclude_groups: "!exclude"
+            ad_domain: "domain.com"
+            password_authentication: "yes"
 ```
 
 License

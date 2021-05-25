@@ -1,12 +1,13 @@
 ---
 # defaults file for ansible-role-duo-unix/
-duo_ikey: '1234567890'
-duo_skey: '1234567890'
-duo_host: 'duo.example.com'
-duo_failmode: 'safe'
-duo_pushinfo: 'yes'
-duo_autopush: 'yes'
-duo_prompts: '1'
-duo_default_groups: 'users,wheel,*admin'
-duo_exclude_groups: '!exclude'
-ad_domain: 'domain.com'
+duo_ikey: "1234567890"
+duo_skey: "1234567890"
+duo_host: "duo.example.com"
+duo_failmode: "safe"
+duo_pushinfo: "yes"
+duo_autopush: "yes"
+duo_prompts: "1"
+duo_default_groups: "users,wheel,*admin"
+duo_exclude_groups: "!exclude"
+ad_domain: "domain.com"
+password_authentication: "yes"

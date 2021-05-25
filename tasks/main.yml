@@ -138,7 +138,7 @@
   ansible.builtin.lineinfile:
     dest: "{{ sshd_config }}"
     regexp: "^PasswordAuthentication"
-    line: "PasswordAuthentication no"
+    line: "PasswordAuthentication {{ password_authentication }}"
     state: present
     validate: 'sshd -T -f %s'
     mode: 0644
