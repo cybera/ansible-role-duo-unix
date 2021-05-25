@@ -14,25 +14,37 @@ Role Variables
 Available variables are listed below, along with default values (see ```defaults/main.yml```):
 
 ``` yaml
-install: true
-software_url: "http://www.example.org"
-package_name: "rapid7-agent-installer.zip"
-token_install: false
-regionalID: "us"
-UUID: "11111111-1111-1111-1111-11111111111"
+duo_ikey: '1234567890'
+duo_skey: '1234567890'
+duo_host: 'duo.example.com'
+duo_failmode: 'safe'
+duo_pushinfo: 'yes'
+duo_autopush: 'yes'
+duo_prompts: '1'
+duo_default_groups: 'users,wheel,*admin'
+duo_exclude_groups: '!exclude'
+ad_domain: 'domain.com'
 ```
 
-```install:``` **(Required)** Used to control wether or not to install the agent, or uninstall a previously installed agent. Defaults to **true**.
+```duo_ikey:``` **(Required)** Integration key from Duo Console.
 
-```software_url``` **(Required)** The URL that hosts the Installer package. This should be either **http** or **https**.
+```duo_skey``` **(Required)** Secret key from Duo Console.
 
-```package_name``` **(Required)** The Installer package name.
+```duo_host``` **(Required)** Duo API hostname.
 
-```token_install``` **(Optional)** If the installation is to be completed using the **Token** install choice, than this var needs to be set as **true**. Otherwise, the installation will be completed using the **Certificate** based install. Certificates should be included in the Installer package for convenience. **(Defaults to Certificate Install)**
+```duo_failmode``` **(Optional)** On service or configuration errors that prevent Duo authentication, fail "**safe**" (**allow access**) or "**secure**" (**deny access**). The default is "**safe**".
 
-```regionalID``` **(Optional)** For **Token** installs, the Regional ID to be used. (i.e. **"us"**)
+```duo_pushinfo``` **(Optional)** Include information such as the command to be executed in the Duo Push message. Either "**yes**" or "**no**". The default is "**no**".
 
-```UUID``` **(Optional)** For **Token** installs, the UUID to be used.
+```duo_autopush``` **(Optional)** Either "**yes**" or "**no**". Default is "**no**". If "**yes**", Duo Unix will automatically send a push login request to the user's phone, falling back on a phone call if push is unavailable. **Note** that this effectively disables passcode authentication. If "**no**", the user will be prompted to choose an authentication method.
+
+```duo_prompts``` **(Optional)** If a user fails to authenticate with a second factor, Duo Unix will prompt the user to authenticate again. This option sets the maximum number of prompts that Duo Unix will display before denying access. Must be **1**, **2**, or **3**. Default is **3**.
+
+```duo_default_groups``` **(Optional)** Default system groups to include.
+
+```duo_exclude_groups``` **(Optional)** System groups to exclude.
+
+```ad_domain``` **(Optional)** Active Directory group (**Fully-Qualified**) to include.
 
 Role variables can be stored with the ```hosts.yaml``` file, or in the main variables file.
 
@@ -49,9 +61,16 @@ Example Playbook
       roles:
          - role: mikepruett3.duo-unix
            vars:
-             install: true
-             software_url: "http://www.example.org"
-             package_name: "rapid7-agent-installer.zip"
+            duo_ikey: '1234567890'
+            duo_skey: '1234567890'
+            duo_host: 'duo.example.com'
+            duo_failmode: 'safe'
+            duo_pushinfo: 'yes'
+            duo_autopush: 'yes'
+            duo_prompts: '1'
+            duo_default_groups: 'users,wheel,*admin'
+            duo_exclude_groups: '!exclude'
+            ad_domain: 'domain.com'
 ```
 
 License

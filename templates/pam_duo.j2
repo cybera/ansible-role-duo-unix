@@ -1,0 +1,27 @@
+# {{ ansible_managed | comment }}
+
+[duo]
+
+; Duo integration key
+ikey = {{ duo_ikey }}
+
+; Duo secret key
+skey = {{ duo_skey }}
+
+; Duo API host
+host = {{ duo_host }}
+
+; Duo Failsafe Mode
+failmode = {{ duo_failmode }}
+
+; Duo Push Authentication Support
+pushinfo = {{ duo_pushinfo }}
+
+; Duo AutoPush Support
+autopush = {{ duo_autopush }}
+
+; Duo Prompts Count
+prompts = {{ duo_prompts }}
+
+; Groups to enforce MFA
+groups = {{ duo_default_groups }},{{ duo_exclude_groups }},*{{ ad_domain.lower() }} guests

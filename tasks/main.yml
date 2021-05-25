@@ -87,3 +87,60 @@
   ansible.builtin.package:
     name: "duo_unix"
     state: present
+
+- name: "Deploy pam_duo.conf Template"
+  template:
+    src: pam_duo.j2
+    dest: /etc/duo/pam_duo.conf
+    force: yes
+
+- name: "Configure SSH Daemon authentication order in pamd"
+  block:
+    - name: "Add auth pam_env.so to sshd"
+      pamd:
+        name: sshd
+        type: auth
+        control: substack
+        module_path: password-auth
+        new_type: auth
+        new_control: required
+        new_module_path: pam_env.so
+        state: after
+    - name: "Add auth pam_duo.so to sshd"
+      pamd:
+        name: sshd
+        type: auth
+        control: required
+        module_path: pam_env.so
+        new_type: auth
+        new_control: sufficient
+        new_module_path: pam_duo.so
+        state: after
+    - name: "Add auth pam_deny.so to sshd"
+      pamd:
+        name: sshd
+        type: auth
+        control: sufficient
+        module_path: pam_duo.so
+        new_type: auth
+        new_control: required
+        new_module_path: pam_deny.so
+        state: after
+    - name: "Disable substack password-auth to sshd"
+      pamd:
+        name: sshd
+        type: auth
+        control: substack
+        module_path: password-auth
+        state: absent
+
+- name: "Update SSH configuration"
+  ansible.builtin.lineinfile:
+    dest: "{{ sshd_config }}"
+    regexp: "^PasswordAuthentication"
+    line: "PasswordAuthentication no"
+    state: present
+    validate: 'sshd -T -f %s'
+    mode: 0644
+    backup: yes
+  notify: "Restart SSH Daemon"
