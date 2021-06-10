@@ -45,12 +45,12 @@
         remote_src: no
     - name: "Import Duo Security Repository Key (RedHat)"
       rpm_key:
-        key: https://duo.com/DUO-GPG-PUBLIC-KEY.asc
+        key: /tmp/DUO-GPG-PUBLIC-KEY.asc
         state: present
       when: ansible_os_family == 'RedHat'
     - name: "Import Duo Security Repository Key (Debian)"
       apt_key:
-        url: https://duo.com/DUO-GPG-PUBLIC-KEY.asc
+        url: /tmp/DUO-GPG-PUBLIC-KEY.asc
         state: present
       when: ansible_os_family == 'Debian'
 
