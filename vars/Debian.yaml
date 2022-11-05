@@ -1,4 +1,6 @@
 ---
+# Debian vars file for ansible-role-duo-unix/
+
 sshd_config: /etc/ssh/sshd_config
 ssh_daemon: 'ssh'
 super_users: 'sudo'
