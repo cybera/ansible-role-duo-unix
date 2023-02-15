@@ -195,7 +195,7 @@
   ansible.builtin.lineinfile:
     path: "{{ sshd_config }}"
     regexp: '(^ChallengeResponseAuthentication .*)'
-    line: '# \1'
+    line: '#ChallengeResponseAuthentication yes'
     mode: 0600
     backup: yes
     state: present
