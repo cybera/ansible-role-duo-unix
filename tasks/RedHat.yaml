@@ -32,8 +32,8 @@
   ansible.builtin.shell: rhn-channel --list | grep -i "duo"
   register: repo
   when:
-    - systemid.stat.exists
     - ansible_facts['distribution'] == 'CentOS'
+    - systemid.stat.exists
 
 - name: "Create Duo Security Repository (RedHat)"
   ansible.builtin.yum_repository:
