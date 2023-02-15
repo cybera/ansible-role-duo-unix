@@ -7,21 +7,6 @@
     state: present
   with_items: "{{ packages }}"
 
-- name: "Download latest Duo Security Repository Key (Debian)"
-  ansible.builtin.get_url:
-    url: https://duo.com/DUO-GPG-PUBLIC-KEY.asc
-    dest: /tmp/
-  delegate_to: localhost
-
-- name: "Transfer Duo Security Repository Key to host (Debian)"
-  ansible.builtin.copy:
-    src: /tmp/DUO-GPG-PUBLIC-KEY.asc
-    dest: /tmp/
-    owner: root
-    group: root
-    mode: 0644
-    remote_src: no
-
 - name: "Import Duo Security Repository Key (Debian)"
   ansible.builtin.apt_key:
     url: /tmp/DUO-GPG-PUBLIC-KEY.asc

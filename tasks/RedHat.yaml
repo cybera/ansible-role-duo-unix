@@ -15,21 +15,6 @@
   with_items: "{{ packages }}"
   when: ansible_facts['distribution_major_version'] >= '8'
 
-- name: "Download latest Duo Security Repository Key (RHEL)"
-  ansible.builtin.get_url:
-    url: https://duo.com/DUO-GPG-PUBLIC-KEY.asc
-    dest: /tmp/
-  delegate_to: localhost
-
-- name: "Transfer Duo Security Repository Key to host (RHEL)"
-  ansible.builtin.copy:
-    src: /tmp/DUO-GPG-PUBLIC-KEY.asc
-    dest: /tmp/
-    owner: root
-    group: root
-    mode: 0640
-    remote_src: no
-
 - name: "Import Duo Security Repository Key (RedHat)"
   ansible.builtin.rpm_key:
     key: /tmp/DUO-GPG-PUBLIC-KEY.asc

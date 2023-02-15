@@ -14,6 +14,21 @@
   ansible.builtin.set_fact:
     openssh_version: "{{ ansible_facts.packages['openssh-server'][0].version }}"
 
+- name: "Download latest Duo Security Repository Key"
+  ansible.builtin.get_url:
+    url: https://duo.com/DUO-GPG-PUBLIC-KEY.asc
+    dest: /tmp/
+  delegate_to: localhost
+
+- name: "Transfer Duo Security Repository Key to host"
+  ansible.builtin.copy:
+    src: /tmp/DUO-GPG-PUBLIC-KEY.asc
+    dest: /tmp/
+    owner: root
+    group: root
+    mode: 0644
+    remote_src: no
+
 - ansible.builtin.include_tasks: Debian.yaml
   when: ansible_facts['os_family'] == 'Debian'
 
