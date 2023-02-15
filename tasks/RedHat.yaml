@@ -43,7 +43,9 @@
     enabled: yes
     gpgcheck: no
     state: present
-  when: not systemid.stat.exists or repo.rc != 0
+  when:
+    - ansible_facts['distribution'] == 'RedHat'
+  #when: not systemid.stat.exists or repo.rc != 0
 
 #- name: "Install duo_unix package (RHEL - yum)"
 #  ansible.builtin.yum:
