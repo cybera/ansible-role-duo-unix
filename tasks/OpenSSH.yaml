@@ -1,0 +1,52 @@
+---
+  # OpenSSH tasks file for ansible-role-duo-unix/
+
+- name: "Update SSH configuration (8.2 and earlier)"
+  ansible.builtin.lineinfile:
+    dest: "{{ sshd_config }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    validate: 'sshd -T -f %s'
+    mode: 0600
+    backup: yes
+  with_items:
+    - regexp: '(^UsePAM .*)'
+      line: 'UsePAM yes'
+    - regexp: '(^ChallengeResponseAuthentication .*)'
+      line: 'ChallengeResponseAuthentication yes'
+    - regexp: '(^UseDNS .*)'
+      line: 'UseDNS no'
+  when: openssh_version <= '8.2'
+
+- name: "Comment out ChallengeResponseAuthentication from SSH configuration (8.7 and later)"
+  ansible.builtin.lineinfile:
+    path: "{{ sshd_config }}"
+    regexp: '(^ChallengeResponseAuthentication .*)'
+    line: '#ChallengeResponseAuthentication yes'
+    mode: 0600
+    backup: yes
+    state: present
+    validate: 'sshd -T -f %s'
+  when: openssh_version >= '8.7'
+
+- name: "Update SSH configuration (8.7 and later)"
+  ansible.builtin.lineinfile:
+    dest: "{{ sshd_config }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    validate: 'sshd -T -f %s'
+  with_items:
+    - regexp: '(^UsePAM .*)'
+      line: 'UsePAM yes'
+    - regexp: '(^KbdInteractiveAuthentication .*)'
+      line: 'KbdInteractiveAuthentication yes'
+    - regexp: '(^UseDNS .*)'
+      line: 'UseDNS no'
+  when: openssh_version >= '8.7'
+
+#- name: "Restart SSH Daemon"
+#  ansible.builtin.service:
+#    name: "{{ ssh_daemon }}"
+#    state: restarted
