@@ -9,13 +9,13 @@
   when:
     - ansible_facts['distribution_major_version'] <= '7'
 
-- name: "Install required packages (RHEL - dnf)"
-  ansible.builtin.dnf:
-    name: "{{ item }}"
-    state: present
-  with_items: "{{ packages }}"
-  when:
-    - ansible_facts['distribution_major_version'] >= '8'
+#- name: "Install required packages (RHEL - dnf)"
+#  ansible.builtin.dnf:
+#    name: "{{ item }}"
+#    state: present
+#  with_items: "{{ packages }}"
+#  when:
+#    - ansible_facts['distribution_major_version'] >= '8'
 
 - name: "Import Duo Security Repository Key (RedHat)"
   ansible.builtin.rpm_key:
@@ -56,12 +56,12 @@
   when:
     - ansible_facts['distribution_major_version'] <= '7'
 
-- name: "Install duo_unix package (RHEL - dnf)"
-  ansible.builtin.dnf:
-    name: "duo_unix"
-    state: present
-  when:
-    - ansible_facts['distribution_major_version'] >= '8'
+#- name: "Install duo_unix package (RHEL - dnf)"
+#  ansible.builtin.dnf:
+#    name: "duo_unix"
+#    state: present
+#  when:
+#    - ansible_facts['distribution_major_version'] >= '8'
 
 - name: "Deploy pam_duo.conf Template (RedHat)"
   ansible.builtin.template:
