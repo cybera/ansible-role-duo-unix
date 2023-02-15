@@ -1,0 +1,149 @@
+---
+# Debian tasks file for ansible-role-duo-unix/
+
+- name: "Install required packages (Debian)"
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ packages }}"
+
+- name: "Download latest Duo Security Repository Key (Debian)"
+  ansible.builtin.get_url:
+    url: https://duo.com/DUO-GPG-PUBLIC-KEY.asc
+    dest: /tmp/
+  delegate_to: localhost
+
+- name: "Transfer Duo Security Repository Key to host (Debian)"
+  ansible.builtin.copy:
+    src: /tmp/DUO-GPG-PUBLIC-KEY.asc
+    dest: /tmp/
+    owner: root
+    group: root
+    mode: 0644
+    remote_src: no
+
+- name: "Import Duo Security Repository Key (Debian)"
+  ansible.builtin.apt_key:
+    url: /tmp/DUO-GPG-PUBLIC-KEY.asc
+    state: present
+
+- name: "Create Duo Security Repository (Debian)"
+  ansible.builtin.apt_repository:
+    repo: "deb https://pkg.duosecurity.com/{{ ansible_distribution }} {{ ansible_distribution_release }} main"
+    validate_certs: no
+    state: present
+
+- name: "Install duo_unix package (Debian)"
+  ansible.builtin.apt:
+    name: "duo_unix"
+    state: present
+
+- name: "Deploy pam_duo.conf Template (Debian)"
+  ansible.builtin.template:
+    src: pam_duo.j2
+    dest: /etc/duo/pam_duo.conf
+    force: yes
+
+- name: "Set auth pam_unix.so to required in common_auth (Debian)"
+  community.general.pamd:
+    name: common_auth
+    type: auth
+    control: '[success=1 default=ignore]'
+    module_path: pam_unix.so
+    new_control: requisite
+    backup: true
+
+- name: "Add auth pam_duo.so to common_auth (Debian)"
+  community.general.pamd:
+    name: common_auth
+    type: auth
+    control: requisite
+    module_path: pam_unix.so
+    new_type: auth
+    new_control: '[success=1 default=ignore]'
+    new_module_path: pam_duo.so
+    state: after
+
+- name: "Disable @include common-auth statement in sshd (Debian)"
+  ansible.builtin.lineinfile:
+    path: /etc/pam.d/sshd
+    search_string: "@include common-auth"
+    line: "#@include common-auth"
+    backup: true
+
+- name: "Insert pam_duo.so statement in sshd (Debian)"
+  ansible.builtin.lineinfile:
+    path: /etc/pam.d/sshd
+    insertafter: "^#@include common-auth"
+    line: "auth  [success=1 default=ignore] pam_duo.so"
+
+- name: "Add auth pam_deny.so to ssh (Debian)"
+  community.general.pamd:
+    name: ssh
+    type: auth
+    control: '[success=1 default=ignore]'
+    module_path: pam_duo.so
+    new_type: auth
+    new_control: requisite
+    new_module_path: pam_deny.so
+    state: after
+
+- name: "Add auth pam_permit.so to ssh (Debian)"
+  community.general.pamd:
+    name: ssh
+    type: auth
+    control: requisite
+    module_path: pam_deny.so
+    new_type: auth
+    new_control: required
+    new_module_path: pam_permit.so
+    state: after
+
+- name: "Update SSH configuration (Debian - 8.2 and earlier)"
+  ansible.builtin.lineinfile:
+    dest: "{{ sshd_config }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    validate: 'sshd -T -f %s'
+    mode: 0600
+    backup: yes
+  with_items:
+    - regexp: "^UsePAM"
+      line: "UsePAM yes"
+    - regexp: "^ChallengeResponseAuthentication"
+      line: "ChallengeResponseAuthentication yes"
+    - regexp: "^UseDNS"
+      line: "UseDNS no"
+  when: openssh_version <= '8.2'
+
+- name: "Comment out ChallengeResponseAuthentication from SSH configuration (Debian - 8.7 and newer)"
+  ansible.builtin.lineinfile:
+    path: "{{ sshd_config }}"
+    regexp: '(^ChallengeResponseAuthentication .*)'
+    line: '# \1'
+    mode: 0600
+    backup: yes
+    state: present
+    validate: 'sshd -T -f %s'
+
+- name: "Update SSH configuration (Debian - 8.7 and newer)"
+  ansible.builtin.lineinfile:
+    dest: "{{ sshd_config }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    validate: 'sshd -T -f %s'
+  with_items:
+    - regexp: '(^UsePAM .*)'
+      line: 'UsePAM yes'
+    - regexp: '(^KbdInteractiveAuthentication .*)'
+      line: 'KbdInteractiveAuthentication yes'
+    - regexp: '(^UseDNS .*)'
+      line: 'UseDNS no'
+  when: openssh_version <= '8.2'
+
+- name: "Restart SSH Daemon (Debian)"
+  ansible.builtin.service:
+    name: "{{ ssh_daemon }}"
+    state: restarted

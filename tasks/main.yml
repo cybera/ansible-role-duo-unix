@@ -2,148 +2,20 @@
 # tasks file for ansible-role-duo-unix/
 
 - name: "Include OS-specific variables"
-  ansible.builtin.include_vars: "{{ lookup('ansible.builtin.first_found', params) }}"
-  vars:
-    params:
-      files:
-        - '{{ansible_distribution}}_{{ansible_distribution_major_version}}.yaml'
-        - '{{ansible_distribution}}.yaml'
-        - '{{ansible_os_family}}.yaml'
-        - default.yaml
-      paths:
-        - 'vars'
+  ansible.builtin.include_vars:
+    file: "{{ ansible_os_family }}.yaml"
 
 - name: "Gather the package facts"
   ansible.builtin.package_facts:
     manager: auto
   when: ansible_facts.packages is not defined
 
-- name: "Install yum-utils package, if not already installed"
-  ansible.builtin.package:
-    name: "yum-utils"
-    state: present
-  when:
-    - '"yum-utils" not in ansible_facts.packages'
-    - ansible_facts['os_family'] == 'RedHat'
+- name: "Get OpenSSH installed version"
+  ansible.builtin.set_fact:
+    openssh_version: "{{ ansible_facts.packages['openssh-server'][0].version }}"
 
-- name: "Download latest Duo Security Repository Key"
-  ansible.builtin.get_url:
-    url: https://duo.com/DUO-GPG-PUBLIC-KEY.asc
-    dest: /tmp/
-  delegate_to: localhost
+- ansible.builtin.include_tasks: Debian.yaml
+  when: ansible_facts['os_family'] == 'Debian'
 
-- name: "Transfer Duo Security Repository Key to host"
-  ansible.builtin.copy:
-    src: /tmp/DUO-GPG-PUBLIC-KEY.asc
-    dest: /tmp/
-    owner: root
-    group: root
-    mode: 0644
-    remote_src: no
-
-- name: "Import Duo Security Repository Key (RedHat)"
-  ansible.builtin.rpm_key:
-    key: /tmp/DUO-GPG-PUBLIC-KEY.asc
-    state: present
+- ansible.builtin.include_tasks: RedHat.yaml
   when: ansible_facts['os_family'] == 'RedHat'
-
-- name: "Import Duo Security Repository Key (Debian)"
-  ansible.builtin.apt_key:
-    url: /tmp/DUO-GPG-PUBLIC-KEY.asc
-    state: present
-  when: ansible_facts['os_family'] == 'Debian'
-
-- name: "Check if host is registered to a Spacewalk server (CentOS)"
-  ansible.builtin.stat:
-    path: /etc/sysconfig/rhn/systemid
-  register: systemid
-  when:
-    - '"rhncfg-client" in ansible_facts.packages'
-    - ansible_distribution == 'CentOS'
-
-- name: "Check if Duo Security Repository is added via Spacewalk (CentOS)"
-  ansible.builtin.shell: rhn-channel --list | grep -i "duo"
-  register: repo
-  when:
-    - systemid.stat.exists
-    - ansible_distribution == 'CentOS'
-
-- name: "Create Duo Security Repository (RedHat)"
-  ansible.builtin.yum_repository:
-    name: duosecurity
-    description: "Duo Security Repository"
-    baseurl: "https://pkg.duosecurity.com/{{ ansible_distribution }}/$releasever/$basearch"
-    enabled: yes
-    gpgcheck: no
-    state: present
-  when: not systemid.stat.exists or repo.rc != 0
-
-- name: "Create Duo Security Repository (Debian)"
-  ansible.builtin.apt_repository:
-    repo: "deb https://pkg.duosecurity.com/{{ ansible_distribution }} {{ ansible_distribution_release }} main"
-    validate_certs: no
-    state: present
-  when: ansible_facts['os_family'] == 'Debian'
-
-- name: "Install duo_unix package"
-  ansible.builtin.package:
-    name: "duo_unix"
-    state: present
-
-- name: "Deploy pam_duo.conf Template"
-  ansible.builtin.template:
-    src: pam_duo.j2
-    dest: /etc/duo/pam_duo.conf
-    force: yes
-
-- name: "Add auth pam_env.so to sshd"
-  community.general.pamd:
-    name: sshd
-    type: auth
-    control: substack
-    module_path: password-auth
-    new_type: auth
-    new_control: required
-    new_module_path: pam_env.so
-    state: after
-
-- name: "Add auth pam_duo.so to sshd"
-  community.general.pamd:
-    name: sshd
-    type: auth
-    control: required
-    module_path: pam_env.so
-    new_type: auth
-    new_control: sufficient
-    new_module_path: pam_duo.so
-    state: after
-
-- name: "Add auth pam_deny.so to sshd"
-  community.general.pamd:
-    name: sshd
-    type: auth
-    control: sufficient
-    module_path: pam_duo.so
-    new_type: auth
-    new_control: required
-    new_module_path: pam_deny.so
-    state: after
-
-- name: "Disable substack password-auth to sshd"
-  community.general.pamd:
-    name: sshd
-    type: auth
-    control: substack
-    module_path: password-auth
-    state: absent
-
-- name: "Update SSH configuration"
-  ansible.builtin.lineinfile:
-    dest: "{{ sshd_config }}"
-    regexp: "^PasswordAuthentication"
-    line: "PasswordAuthentication {{ password_authentication }}"
-    state: present
-    validate: 'sshd -T -f %s'
-    mode: 0644
-    backup: yes
-  notify: "Restart SSH Daemon"

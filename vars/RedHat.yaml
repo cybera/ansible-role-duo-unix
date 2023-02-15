@@ -4,3 +4,7 @@
 sshd_config: /etc/ssh/sshd_config
 ssh_daemon: 'sshd'
 super_users: 'wheel'
+packages:
+  - openssl-devel
+  - pam-devel
+  - yum-utils
