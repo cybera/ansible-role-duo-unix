@@ -63,11 +63,11 @@
 #  when:
 #    - ansible_facts['distribution_major_version'] >= '8'
 
-- name: "Deploy pam_duo.conf Template (RedHat)"
-  ansible.builtin.template:
-    src: pam_duo.j2
-    dest: /etc/duo/pam_duo.conf
-    force: yes
+#- name: "Deploy pam_duo.conf Template (RedHat)"
+#  ansible.builtin.template:
+#    src: pam_duo.j2
+#    dest: /etc/duo/pam_duo.conf
+#    force: yes
 
 - name: "Set auth pam_unix.so to requisite in system-auth (RedHat)"
   community.general.pamd:
