@@ -9,13 +9,13 @@
   when:
     - ansible_facts['distribution_major_version'] <= '7'
 
-#- name: "Install required packages (RHEL - dnf)"
-#  ansible.builtin.dnf:
-#    name: "{{ item }}"
-#    state: present
-#  with_items: "{{ packages }}"
-#  when:
-#    - ansible_facts['distribution_major_version'] >= '8'
+- name: "Install required packages (RHEL - dnf)"
+  ansible.builtin.dnf:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ packages }}"
+  when:
+    - ansible_facts['distribution_major_version'] >= '8'
 
 - name: "Import Duo Security Repository Key (RedHat)"
   ansible.builtin.rpm_key:
@@ -56,18 +56,18 @@
   when:
     - ansible_facts['distribution_major_version'] <= '7'
 
-#- name: "Install duo_unix package (RHEL - dnf)"
-#  ansible.builtin.dnf:
-#    name: "duo_unix"
-#    state: present
-#  when:
-#    - ansible_facts['distribution_major_version'] >= '8'
+- name: "Install duo_unix package (RHEL - dnf)"
+  ansible.builtin.dnf:
+    name: "duo_unix"
+    state: present
+  when:
+    - ansible_facts['distribution_major_version'] >= '8'
 
-#- name: "Deploy pam_duo.conf Template (RedHat)"
-#  ansible.builtin.template:
-#    src: pam_duo.j2
-#    dest: /etc/duo/pam_duo.conf
-#    force: yes
+- name: "Deploy pam_duo.conf Template (RedHat)"
+  ansible.builtin.template:
+    src: pam_duo.j2
+    dest: /etc/duo/pam_duo.conf
+    force: yes
 
 - name: "Set auth pam_unix.so to requisite in system-auth (RedHat)"
   community.general.pamd:
@@ -141,3 +141,17 @@
     new_control: required
     new_module_path: pam_deny.so
     state: after
+
+- name: "Add auth pam_succeed_if.so to sshd (RedHat 8/7)"
+  community.general.pamd:
+    name: sshd
+    type: auth
+    control: sufficient
+    module_path: pam_duo.so
+    new_type: auth
+    new_control: requisite
+    new_module_path: pam_succeed_if.so
+    module_arguments: 'uid >= 1000 quiet_success'
+    state: after
+  when:
+    - ansible_facts['distribution_major_version'] == '8' or ansible_facts['distribution_major_version'] == '7'

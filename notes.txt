@@ -1,0 +1,23 @@
+OpenSSH Versions:
+CentOS 7:
+    $ ssh -V
+    OpenSSH_7.4p1, OpenSSL 1.0.2k-fips  26 Jan 2017
+Red Hat Enterprise Linux 7
+    $ ssh -V
+    OpenSSH_7.4p1, OpenSSL 1.0.2k-fips  26 Jan 2017
+Red Hat Enterprise Linux 8
+    $ ssh -V
+    OpenSSH_8.0p1, OpenSSL 1.1.1k  FIPS 25 Mar 2021
+Red Hat Enterprise Linux 9
+    $ ssh -V
+    OpenSSH_8.7p1, OpenSSL 3.0.1 14 Dec 2021
+Ubuntu 20.04 LTS
+    $ ssh -V
+    OpenSSH_8.2p1 Ubuntu-4ubuntu0.5, OpenSSL 1.1.1f  31 Mar 2020
+Ubuntu 22.04 LTS
+    $ ssh -V
+    OpenSSH_8.9p1 Ubuntu-3ubuntu0.1, OpenSSL 3.0.2 15 Mar 2022
+
+Differences in /etc/ssh/sshd_config:
+sudo cat /etc/ssh/sshd_config | grep KbdInteractiveAuthentication
+sudo cat /etc/ssh/sshd_config | grep ChallengeResponseAuthentication
