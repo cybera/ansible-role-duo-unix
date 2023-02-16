@@ -1,3 +1,6 @@
+Guide:
+    https://duo.com/docs/duounix
+
 OpenSSH Versions:
 CentOS 7:
     $ ssh -V
