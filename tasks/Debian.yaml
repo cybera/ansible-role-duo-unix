@@ -65,7 +65,7 @@
 
 - name: "Add auth pam_deny.so to ssh (Debian)"
   community.general.pamd:
-    name: ssh
+    name: sshd
     type: auth
     control: '[success=1 default=ignore]'
     module_path: pam_duo.so
@@ -76,7 +76,7 @@
 
 - name: "Add auth pam_permit.so to ssh (Debian)"
   community.general.pamd:
-    name: ssh
+    name: sshd
     type: auth
     control: requisite
     module_path: pam_deny.so
