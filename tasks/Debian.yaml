@@ -14,7 +14,8 @@
 
 - name: "Create Duo Security Repository (Debian)"
   ansible.builtin.apt_repository:
-    repo: "deb https://pkg.duosecurity.com/{{ ansible_distribution }} {{ ansible_distribution_release }} main"
+    #repo: "deb https://pkg.duosecurity.com/{{ ansible_distribution }} {{ ansible_distribution_release }} main"
+    repo: "deb https://pkg.duosecurity.com/{{ ansible_distribution }} jammy main"
     validate_certs: no
     state: present
 
