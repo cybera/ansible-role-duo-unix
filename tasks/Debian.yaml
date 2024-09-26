@@ -19,9 +19,9 @@
     validate_certs: no
     state: present
 
-- name: "Install duo_unix package (Debian)"
+- name: "Install duo-unix package (Debian)"
   ansible.builtin.apt:
-    name: "duo_unix"
+    name: "duo-unix"
     state: present
 
 - name: "Deploy pam_duo.conf Template (Debian)"
