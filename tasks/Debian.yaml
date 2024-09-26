@@ -30,18 +30,18 @@
     dest: /etc/duo/pam_duo.conf
     force: yes
 
-- name: "Set auth pam_unix.so to required in common_auth (Debian)"
+- name: "Set auth pam_unix.so to required in common-auth (Debian)"
   community.general.pamd:
-    name: common_auth
+    name: common-auth
     type: auth
     control: '[success=1 default=ignore]'
     module_path: pam_unix.so
     new_control: requisite
     backup: true
 
-- name: "Add auth pam_duo.so to common_auth (Debian)"
+- name: "Add auth pam_duo.so to common-auth (Debian)"
   community.general.pamd:
-    name: common_auth
+    name: common-auth
     type: auth
     control: requisite
     module_path: pam_unix.so
