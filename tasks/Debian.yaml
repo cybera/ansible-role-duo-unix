@@ -9,7 +9,7 @@
 
 - name: "Import Duo Security Repository Key (Debian)"
   ansible.builtin.apt_key:
-    url: /tmp/DUO-GPG-PUBLIC-KEY.asc
+    file: /tmp/DUO-GPG-PUBLIC-KEY.asc
     state: present
 
 - name: "Create Duo Security Repository (Debian)"
