@@ -46,7 +46,7 @@
       line: 'UseDNS no'
   when: openssh_version >= '8.7'
 
-#- name: "Restart SSH Daemon"
-#  ansible.builtin.service:
-#    name: "{{ ssh_daemon }}"
-#    state: restarted
+- name: "Restart SSH Daemon"
+  ansible.builtin.service:
+    name: "{{ ssh_daemon }}"
+    state: restarted
