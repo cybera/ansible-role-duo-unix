@@ -1,6 +1,10 @@
 ---
 # Debian tasks file for ansible-role-duo-unix/
 
+- name: "Fix openssh_version fact. Ubuntu has a 1: in front"
+  ansible.builtin.set_fact:
+    openssh_version: "{{ ansible_facts.packages['openssh-server'][0].version[2:] }}"
+
 - name: "Install required packages (Debian)"
   ansible.builtin.apt:
     name: "{{ item }}"
@@ -47,8 +51,19 @@
     module_path: pam_unix.so
     new_type: auth
     new_control: '[success=1 default=ignore]'
-    new_module_path: pam_duo.so
+    new_module_path: '/lib64/security/pam_duo.so'
     state: after
+
+- name: "Add pam_duo.so in sshd (Debian)"
+  community.general.pamd:
+    name: sshd
+    type: account
+    control: required
+    module_path: pam_nologin.so
+    new_type: auth
+    new_control: '[success=1 default=ignore]'
+    new_module_path: '/lib64/security/pam_duo.so'
+    state: before
 
 - name: "Disable @include common-auth statement in sshd (Debian)"
   ansible.builtin.lineinfile:
@@ -57,18 +72,12 @@
     line: "#@include common-auth"
     backup: true
 
-- name: "Insert pam_duo.so statement in sshd (Debian)"
-  ansible.builtin.lineinfile:
-    path: /etc/pam.d/sshd
-    insertafter: "^#@include common-auth"
-    line: "auth  [success=1 default=ignore] pam_duo.so"
-
 - name: "Add auth pam_deny.so to ssh (Debian)"
   community.general.pamd:
     name: sshd
     type: auth
     control: '[success=1 default=ignore]'
-    module_path: pam_duo.so
+    module_path: '/lib64/security/pam_duo.so'
     new_type: auth
     new_control: requisite
     new_module_path: pam_deny.so
